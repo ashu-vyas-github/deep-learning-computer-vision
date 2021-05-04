@@ -12,12 +12,62 @@ import numpy
 from keras.datasets import mnist
 from keras.models import load_model
 
-def draw_test(name, pred, input_im):
-    BLACK = [0,0,0]
-    expanded_image = cv2.copyMakeBorder(input_im, 0, 0, 0, imageL.shape[0] ,cv2.BORDER_CONSTANT,value=BLACK)
-    expanded_image = cv2.cvtColor(expanded_image, cv2.COLOR_GRAY2BGR)
-    cv2.putText(expanded_image, str(pred), (152, 70) , cv2.FONT_HERSHEY_COMPLEX_SMALL,4, (0,255,0), 2)
-    cv2.imshow(name, expanded_image)
+
+def draw_test(test_image, pred_class, window_title):
+    """
+    Function to show a selected test image and its predicted label side-by-side.
+
+    Parameters
+    ----------
+    test_image : ndarray
+        Test image in grayscale.
+    pred_class : string
+        Predicted class for the test image.
+    window_title : string
+        Text title for image viewer window.
+
+    Returns
+    -------
+    int
+        Null.
+
+    """
+    black_rgb = [0, 0, 0]
+    results_stitched = cv2.copyMakeBorder(
+        test_image, 0, 0, 0, test_image.shape[0], cv2.BORDER_CONSTANT, value=black_rgb)  # add black background
+    results_stitched = cv2.cvtColor(results_stitched, cv2.COLOR_GRAY2BGR)
+    # put predicted class result on the black background
+    cv2.putText(results_stitched, str(pred_class), (152, 70), cv2.FONT_HERSHEY_COMPLEX_SMALL, 4, (0, 255, 0), 2)
+    cv2.imshow(window_title, results_stitched)
+
+    return 0
+
+
+def pretrained_saved_classifier():
+    """
+    Function to showcase a pretrained and saved classifier on MNIST dataset.
+
+    Returns
+    -------
+    int
+        Null.
+    """
+
+    classifier = load_model('./trained_model/mnist_simple_cnn.h5')  # loads a saved CNN classifier
+    (x_train, y_train), (x_test, y_test) = mnist.load_data()  # loads the MNIST dataset
+
+    for i in range(0, 10):
+        random_img_idx = numpy.random.randint(0, len(x_test))
+        random_test_image = x_test[random_img_idx]  # select a random test image
+        image_enlarged = cv2.resize(random_test_image, None, fx=4, fy=4, interpolation=cv2.INTER_CUBIC)
+        # reshape original image to satisfy classifier input requirements
+        random_test_image = random_test_image.reshape(1, 28, 28, 1)
+        predicted_class = str(numpy.argmax(classifier.predict(random_test_image), axis=-1)[0])  # get prediction
+        draw_test(image_enlarged, predicted_class, "Test vs. Predicted Class")  # show results
+        cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    return 0
 
 
 def main():
@@ -28,31 +78,11 @@ def main():
     -------
     int
         returns integer 0 for safe executions.
-
     """
 
     print("Simple classifier for MNIST dataset.")
 
-    classifier = load_model('./trained_model/mnist_simple_cnn.h5')
-
-    # loads the MNIST dataset
-    (x_train, y_train), (x_test, y_test)  = mnist.load_data()
-
-    for i in range(0,10):
-        rand = numpy.random.randint(0,len(x_test))
-        input_im = x_test[rand]
-
-        imageL = cv2.resize(input_im, None, fx=4, fy=4, interpolation = cv2.INTER_CUBIC)
-        input_im = input_im.reshape(1,28,28,1)
-
-        ## Get Prediction
-        #res = str(classifier.predict_classes(input_im, 1, verbose = 0)[0])
-        res = str(numpy.argmax(classifier.predict(input_im), axis=-1)[0])
-        print(res)
-        draw_test("Prediction", res, imageL)
-        cv2.waitKey(0)
-
-    cv2.destroyAllWindows()
+    pretrained_saved_classifier()
 
     print("\nDone")
 
