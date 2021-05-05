@@ -199,6 +199,8 @@ def plotting_loss_accuracy(history_dict, metric_train, metric_test, title, label
     metric_test_values = history_dict[metric_test]
     epochs = range(1, len(metric_train_values) + 1)
 
+    plt.figure()
+    plt.title(title)
     line1 = plt.plot(epochs, metric_train_values, label=label_train)
     line2 = plt.plot(epochs, metric_test_values, label=label_test)
     plt.setp(line1, linewidth=2.0, marker='+', markersize=10.0)
