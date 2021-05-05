@@ -10,7 +10,7 @@ import os
 import cv2
 import numpy
 import keras
-from keras import backend as K
+import matplotlib.pyplot as plt
 from keras.utils import np_utils
 from keras.datasets import mnist
 from keras.models import load_model
@@ -189,6 +189,35 @@ def train_mnist_classifier():
     print('Test loss:', score[0])
     print('Test accuracy:', score[1])
 
+    history_dict = history.history
+
+    plotting_loss_accuracy(history_dict, metric_train="loss", metric_test="val_loss", title="Loss for MNIST",
+                           label_train="Train loss", label_test="Test loss", x_label="Epochs", y_label="Loss")
+
+    plotting_loss_accuracy(history_dict, metric_train="accuracy", metric_test="val_accuracy", title="Accuracy for MNIST",
+                           label_train="Train acc.", label_test="Test acc.", x_label="Epochs", y_label="Accuracy")
+
+    return 0
+
+
+def plotting_loss_accuracy(history_dict, metric_train, metric_test, title, label_train, label_test, x_label, y_label):
+
+    metric_train_values = history_dict[metric_train]
+    metric_test_values = history_dict[metric_test]
+    epochs = range(1, len(metric_train_values) + 1)
+
+    plt.figure()
+    plt.title(title)
+    line1 = plt.plot(epochs, metric_train_values, label=label_train)
+    line2 = plt.plot(epochs, metric_test_values, label=label_test)
+    plt.setp(line1, linewidth=2.0, marker='+', markersize=10.0)
+    plt.setp(line2, linewidth=2.0, marker='4', markersize=10.0)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.grid(True)
+    plt.legend()
+    plt.show()
+
     return 0
 
 
@@ -206,11 +235,11 @@ def main():
 
     print("Part 1 of program.")
     classifier = load_model('./trained_model/mnist_simple_cnn.h5')  # loads a saved CNN classifier
-    # pretrained_saved_classifier(classifier)  # performance of pretrained classifier
+    pretrained_saved_classifier(classifier)  # performance of pretrained classifier
 
     print("Part 2 of program.")
-    # image = cv2.imread('images/numbers.jpg')
-    # test_pretrained_classifier(image, classifier)
+    image = cv2.imread('images/numbers.jpg')
+    test_pretrained_classifier(image, classifier)
 
     print("Part 3 of program.")
     train_mnist_classifier()
