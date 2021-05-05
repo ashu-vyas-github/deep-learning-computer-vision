@@ -8,11 +8,23 @@ Explanation here. With 72 character limit.
 
 """
 
+
+import os
 import cv2
 import numpy
+import keras
+from keras import backend as K
+from keras.utils import np_utils
 from keras.datasets import mnist
 from keras.models import load_model
+from keras.models import Sequential
+from keras.layers import Conv2D, MaxPooling2D
+from keras.layers import Dense, Dropout, Flatten
 from preprocessors import x_cord_contour, makeSquare, resize_to_pixel
+
+numpy.random.seed(seed=42)
+os.environ['TF_XLA_FLAGS'] = '--tf_xla_enable_xla_devices'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
 def draw_test(test_image, pred_class, window_title):
@@ -61,7 +73,7 @@ def pretrained_saved_classifier(classifier):
         random_img_idx = numpy.random.randint(0, len(x_test))
         random_test_image = x_test[random_img_idx]  # select a random test image
         image_enlarged = cv2.resize(random_test_image, None, fx=4, fy=4, interpolation=cv2.INTER_CUBIC)
-        # reshape original image to satisfy classifier input requirements
+        # reshape original image to satisfy classifier input requirements (#sample, image height, image width, #channels)
         random_test_image = random_test_image.reshape(1, 28, 28, 1)
         predicted_class = str(numpy.argmax(classifier.predict(random_test_image), axis=-1)[0])  # get prediction
         draw_test(image_enlarged, predicted_class, "Test vs. Predicted Class")  # show results
@@ -130,6 +142,59 @@ def test_pretrained_classifier(test_image, classifier):
     return 0
 
 
+def train_mnist_classifier():
+
+    # Training Parameters
+    batch_size = 4
+    epochs = 5
+
+    (x_train, y_train), (x_test, y_test) = mnist.load_data()
+    img_rows = x_train[0].shape[0]
+    img_cols = x_train[0].shape[1]
+    x_train = x_train.reshape(x_train.shape[0], img_rows, img_cols, 1)
+    x_test = x_test.reshape(x_test.shape[0], img_rows, img_cols, 1)
+
+    # change datatype from uint8 to float32 and normalize
+    x_train = x_train.astype('float32')/255
+    x_test = x_test.astype('float32')/255
+
+    # one hot encode target classes
+    y_train = np_utils.to_categorical(y_train)
+    y_test = np_utils.to_categorical(y_test)
+
+    print('x_train shape:', x_train.shape)
+    print(x_train.shape[0], 'train samples')
+    print(x_test.shape[0], 'test samples')
+    print("Number of Classes: " + str(y_test.shape[1]))
+
+    num_classes = y_test.shape[1]
+    num_pixels = x_train.shape[1] * x_train.shape[2]
+
+    classifier = Sequential()  # create classifier
+
+    classifier.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=(img_rows, img_cols, 1)))
+    classifier.add(Conv2D(64, (3, 3), activation='relu'))
+    classifier.add(MaxPooling2D(pool_size=(2, 2)))
+    classifier.add(Dropout(0.25))
+    classifier.add(Flatten())
+    classifier.add(Dense(128, activation='relu'))
+    classifier.add(Dropout(0.5))
+    classifier.add(Dense(num_classes, activation='softmax'))
+
+    classifier.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.Adadelta(), metrics=['accuracy'])
+
+    print(classifier.summary())
+
+    history = classifier.fit(x_train, y_train, batch_size=batch_size, epochs=epochs,
+                             verbose=1, validation_data=(x_test, y_test))
+
+    score = classifier.evaluate(x_test, y_test, verbose=0)
+    print('Test loss:', score[0])
+    print('Test accuracy:', score[1])
+
+    return 0
+
+
 def main():
     """
     The main function to execute upon call.
@@ -142,11 +207,16 @@ def main():
 
     print("Simple classifier for MNIST dataset.")
 
+    print("Part 1 of program.")
     classifier = load_model('./trained_model/mnist_simple_cnn.h5')  # loads a saved CNN classifier
-    pretrained_saved_classifier(classifier)  # performance of pretrained classifier
+    # pretrained_saved_classifier(classifier)  # performance of pretrained classifier
 
-    image = cv2.imread('images/numbers.jpg')
-    test_pretrained_classifier(image, classifier)
+    print("Part 2 of program.")
+    # image = cv2.imread('images/numbers.jpg')
+    # test_pretrained_classifier(image, classifier)
+
+    print("Part 3 of program.")
+    train_mnist_classifier()
 
     print("\nDone")
 
