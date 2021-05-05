@@ -27,7 +27,7 @@ os.environ['TF_XLA_FLAGS'] = '--tf_xla_enable_xla_devices'
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
-def draw_test(test_image, pred_class, window_title):
+def display_test_result(test_image, pred_class, window_title):
     """
     Function to show a selected test image and its predicted label side-by-side.
 
@@ -76,7 +76,7 @@ def pretrained_saved_classifier(classifier):
         # reshape original image to satisfy classifier input requirements (#sample, image height, image width, #channels)
         random_test_image = random_test_image.reshape(1, 28, 28, 1)
         predicted_class = str(numpy.argmax(classifier.predict(random_test_image), axis=-1)[0])  # get prediction
-        draw_test(image_enlarged, predicted_class, "Test vs. Predicted Class")  # show results
+        display_test_result(image_enlarged, predicted_class, "Test vs. Predicted Class")  # show results
         cv2.waitKey(0)
     cv2.destroyAllWindows()
 
