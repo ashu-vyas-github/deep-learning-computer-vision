@@ -2,10 +2,7 @@
 """
 @author: ashutosh
 
-One line summary of the file
-
-Explanation here. With 72 character limit.
-
+A simple program to build CNN classifier for MNIST dataset.
 """
 
 
