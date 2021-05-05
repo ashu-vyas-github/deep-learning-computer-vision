@@ -14,6 +14,32 @@ numpy.random.seed(seed=42)
 
 
 def display_test_result(test_image, pred_class, window_title, scale, img_width, img_height, color=True):
+    """
+    Function to output class label text for a test sample and display with OpenCV.
+
+    Parameters
+    ----------
+    test_image : ndarray
+        Test image sample.
+    pred_class : int
+        Encoded class label as 0-9.
+    window_title : string
+        Title of the OpenCV result window.
+    scale : float
+        Image scaling factor.
+    img_width : int
+        Image width.
+    img_height : int
+        Image height.
+    color : boolean, optional
+        Flag to indicate color (True) or grayscale images (False). The default is True.
+
+    Returns
+    -------
+    int
+        DESCRIPTION.
+
+    """
 
     black_rgb = [0, 0, 0]
 
@@ -50,6 +76,30 @@ def display_test_result(test_image, pred_class, window_title, scale, img_width, 
 
 
 def image_classifier_cifar10(classifier, img_width=32, img_height=32, img_depth=3, scale=8, color=True):
+    """
+    CIFAR10 pretrained classifier.
+
+    Parameters
+    ----------
+    classifier : Keras CNN classifier object.
+        CNN classifier from the h5 file.
+    img_width : int, optional
+        Image width. The default is 32.
+    img_height : int, optional
+        Image height. The default is 32.
+    img_depth : int, optional
+        #channels for color images. The default is 3.
+    scale : float, optional
+        Scaling factor to enlarge images. The default is 8.
+    color : boolean, optional
+        Flag to indicate color (True) or grayscale images (False). The default is True.
+
+    Returns
+    -------
+    int
+        Null.
+
+    """
 
     (x_train, y_train), (x_test, y_test) = cifar10.load_data()
 
