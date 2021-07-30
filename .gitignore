@@ -112,3 +112,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+CNN_Filters_Visualizations_91011/cnn_hiddenlayers_visualization.py
+CNN_Filters_Visualizations_91011/ImportError - cannot import name _Conv from keras.layers.convolutional.png
+CNN_Filters_Visualizations_91011/saliency_edited_copy_screenshots.py
+CNN_Filters_Visualizations_91011/ImportError - cannot import name imresize.png
+d2l-en.zip
+tensorflow_test.py
